@@ -6,6 +6,7 @@
 </head>
 <body>
 <title>داشبورد سعدی</title>
+<script>try{const t=localStorage.getItem('sadi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
 <style>
@@ -15,14 +16,32 @@
   --bg:#f4f6fb;--card:#ffffff;--ink:#14213d;--muted:#64708a;--line:#e4e8f1;--soft:#f6f8fc;
   --accent:#2a5bd7;--accent-2:#0e9f9a;--accent-soft:#eaf0ff;--plan:#b7c2d8;--plan-soft:#eef1f7;
   --ok:#0f9d63;--ok-soft:#e1f6ec;--warn:#c76a05;--warn-soft:#fff2df;--bad:#d9433a;--bad-soft:#fde9e7;
-  --gray-soft:#eef1f6;--band-a:#1f3c88;--band-b:#1a8f9a;
+  --gray-soft:#eef1f6;--band-a:#1f3c88;--band-m:#2a5bd7;--band-b:#1a8f9a;
+  --mix:#fff;--hover:#f8faff;--toast-bg:#14213d;--toast-ink:#fff;
   --shadow:0 1px 2px rgba(20,33,61,.04),0 6px 18px rgba(20,33,61,.06);
   --f-ui:Vazirmatn,Tahoma,sans-serif;
 }
+/* تم تیره: خودکار از تنظیم سیستم، یا انتخاب دستی با دکمه تم */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --bg:#0e1424;--card:#161f33;--ink:#e5eaf4;--muted:#94a1ba;--line:#26314a;--soft:#1b263d;
+  --accent:#5b8cff;--accent-2:#22b8b1;--accent-soft:#1e2d52;--plan:#4b5875;--plan-soft:#212b42;
+  --ok:#34c98a;--ok-soft:#14352a;--warn:#f0a447;--warn-soft:#38291a;--bad:#ff6b60;--bad-soft:#3d1f22;
+  --gray-soft:#212b42;--band-a:#14275a;--band-m:#1d3f99;--band-b:#0f5e66;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  --mix:#161f33;--hover:#1c2842;--toast-bg:#e5eaf4;--toast-ink:#14213d;}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0e1424;--card:#161f33;--ink:#e5eaf4;--muted:#94a1ba;--line:#26314a;--soft:#1b263d;
+  --accent:#5b8cff;--accent-2:#22b8b1;--accent-soft:#1e2d52;--plan:#4b5875;--plan-soft:#212b42;
+  --ok:#34c98a;--ok-soft:#14352a;--warn:#f0a447;--warn-soft:#38291a;--bad:#ff6b60;--bad-soft:#3d1f22;
+  --gray-soft:#212b42;--band-a:#14275a;--band-m:#1d3f99;--band-b:#0f5e66;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  --mix:#161f33;--hover:#1c2842;--toast-bg:#e5eaf4;--toast-ink:#14213d;}
+.theme-btn{display:inline-flex;align-items:center;gap:6px}
+.theme-btn svg{width:16px;height:16px}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.65}
 button,input,select,textarea{font:inherit;color:inherit}
-.band{background:linear-gradient(120deg,var(--band-a) 0%,#2a5bd7 55%,var(--band-b) 100%);color:#fff;padding-block:22px 64px;position:relative;overflow:hidden}
+.band{background:linear-gradient(120deg,var(--band-a) 0%,var(--band-m) 55%,var(--band-b) 100%);color:#fff;padding-block:22px 64px;position:relative;overflow:hidden}
 .band::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 220px at 15% 0%,rgba(255,255,255,.16),transparent 70%),radial-gradient(500px 200px at 90% 120%,rgba(255,255,255,.12),transparent 70%);pointer-events:none}
 .band .in,.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative;z-index:1}
 .wrap{padding-block:0 24px;margin-top:-46px}
@@ -87,7 +106,7 @@ select.inp:focus,input.inp:focus,textarea.inp:focus{border-color:var(--accent);o
 .tl .months .trk{height:24px;font-size:11px;color:var(--muted);background:none}
 .tl .months{border-bottom:1px solid var(--line)}
 .tl .months span{position:absolute;top:0;transform:translateX(50%);white-space:nowrap}
-.tl .seg{position:absolute;top:9px;height:16px;border-radius:99px;background:color-mix(in srgb,var(--pc,var(--accent)) 16%,#fff);overflow:hidden;border:1px solid color-mix(in srgb,var(--pc,var(--accent)) 45%,#fff)}
+.tl .seg{position:absolute;top:9px;height:16px;border-radius:99px;background:color-mix(in srgb,var(--pc,var(--accent)) 16%,var(--mix));overflow:hidden;border:1px solid color-mix(in srgb,var(--pc,var(--accent)) 45%,var(--mix))}
 .tl .seg i{position:absolute;top:0;bottom:0;right:0;background:var(--pc,var(--accent));border-radius:99px}
 .tl .seg.late{box-shadow:0 0 0 2px var(--bad-soft)}
 .tl .today{position:absolute;top:0;bottom:0;width:2px;background:var(--bad);z-index:2}
@@ -115,8 +134,8 @@ select.inp:focus,input.inp:focus,textarea.inp:focus{border-color:var(--accent);o
 .thead,.row{display:grid;grid-template-columns:minmax(0,1fr) 92px 92px 64px 120px 112px 92px;align-items:center;gap:8px}
 .thead{font-size:12px;color:var(--muted);padding:8px;border-bottom:1px solid var(--line);background:var(--soft);border-radius:10px 10px 0 0}
 .tree .row{padding:4px 8px;border-bottom:1px solid var(--soft);min-height:40px}
-.tree .row:hover{background:#f8faff}
-.tree .row.lvl0{background:linear-gradient(270deg,color-mix(in srgb,var(--pc,var(--accent)) 12%,#fff),#fff);border-inline-start:4px solid var(--pc,var(--accent));border-radius:10px;margin-top:10px;font-weight:700;border-bottom:0}
+.tree .row:hover{background:var(--hover)}
+.tree .row.lvl0{background:linear-gradient(270deg,color-mix(in srgb,var(--pc,var(--accent)) 12%,var(--mix)),var(--card));border-inline-start:4px solid var(--pc,var(--accent));border-radius:10px;margin-top:10px;font-weight:700;border-bottom:0}
 .tree .row.par{font-weight:500}
 .tree .row.flash{animation:flash 1.6s ease-out}
 @keyframes flash{from{background:var(--warn-soft)}to{background:transparent}}
@@ -175,7 +194,7 @@ dialog h3{margin:0 0 14px}
 .blank{text-align:center;padding:48px 16px;color:var(--muted);background:var(--card);border-radius:16px;box-shadow:var(--shadow)}
 .blank b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:13px}
-#toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:12px;font-size:13px;z-index:50;max-width:90vw;box-shadow:var(--shadow)}
+#toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--toast-bg);color:var(--toast-ink);padding:8px 16px;border-radius:12px;font-size:13px;z-index:50;max-width:90vw;box-shadow:var(--shadow)}
 #pop{position:absolute;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 12px 32px rgba(20,33,61,.18);width:236px}
 #pop .row2{display:flex;gap:6px;align-items:center;margin-top:8px}
 #pop input[type=range]{width:100%;accent-color:var(--accent)}
@@ -204,6 +223,7 @@ body.ro .pctbtn,body.ro .ttl{cursor:default}
     <div class="bar">
       <span class="sub" id="todayLbl"></span>
       <span id="saveState" class="save">در حال بارگذاری…</span>
+      <button class="btn theme-btn" id="btnTheme" type="button"></button>
       <button class="btn ro-hide" id="btnEditProj">ویرایش مشخصات</button>
     </div>
   </header></div></div>
@@ -374,7 +394,7 @@ function renderHeader(){
   $('#pSub').textContent=m.title||'';$('#pCode').textContent=m.code||'';
   const t=dnJ(T).split('/');$('#todayLbl').textContent='امروز '+fa(+t[2])+' '+MONTHS[+t[1]-1]+' '+fa(t[0])}
 const ICO={prog:'<path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/>',time:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',done:'<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',late:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>'};
-function kpi(l,v,s,bars,cls,ic,c){return`<div class="card kpi ${cls||''}" style="--kc:${c};--kc-soft:color-mix(in srgb,${c} 13%,#fff)"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICO[ic]}</svg></span><div class="l">${l}</div><div class="v num">${v}</div>${bars||''}<div class="s">${s||''}</div></div>`}
+function kpi(l,v,s,bars,cls,ic,c){return`<div class="card kpi ${cls||''}" style="--kc:${c};--kc-soft:color-mix(in srgb,${c} 13%,var(--mix))"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICO[ic]}</svg></span><div class="l">${l}</div><div class="v num">${v}</div>${bars||''}<div class="s">${s||''}</div></div>`}
 function dual(act,plan){return`<div class="dual"><div class="pbar ${act>=99.95?'ok':''}" title="واقعی"><i style="width:${Math.min(100,act)}%"></i></div><div class="pbar" title="برنامه‌ای"><b style="width:${Math.min(100,plan)}%"></b></div></div>`}
 function varChip(act,plan){const d=act-plan;if(Math.abs(d)<0.5)return'<span class="chip">مطابق برنامه</span>';
   return d<0?`<span class="chip lag">${pct1(-d)} عقب</span>`:`<span class="chip ahead">${pct1(d)} جلو</span>`}
@@ -616,6 +636,18 @@ $('#btnAddGroup').onclick=addGroup;$('#btnAddGroup2').onclick=addGroup;
 $('#btnEditProj').onclick=()=>{if(!canWrite)return;const m=meta||{};
   openForm('مشخصات پروژه',[{key:'name',label:'نام کوتاه',req:true},{key:'code',label:'کد مدرک',ltr:true},{key:'title',label:'عنوان کامل',full:true},
     {key:'start',label:'شروع پروژه',type:'date'},{key:'finish',label:'پایان پروژه',type:'date'}],m,v=>{meta={...(meta||{}),...v};metaDirty=true;render();queueSave()})};
+
+/* ============ تم روشن/تیره ============ */
+(()=>{const b=$('#btnTheme');const ORDER=['auto','light','dark'];
+  const LBL={auto:'تم: خودکار',light:'تم: روشن',dark:'تم: تیره'};
+  const ICON={auto:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
+    light:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    dark:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'};
+  let cur='auto';try{const t=localStorage.getItem('sadi-theme');if(ORDER.includes(t))cur=t}catch(e){}
+  const apply=()=>{if(cur==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=cur;
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">'+ICON[cur]+'</svg>'+LBL[cur];
+    b.title='تغییر تم (خودکار، روشن، تیره)'};
+  b.onclick=()=>{cur=ORDER[(ORDER.indexOf(cur)+1)%3];try{localStorage.setItem('sadi-theme',cur)}catch(e){}apply()};apply()})();
 
 /* ============ راه‌اندازی ============ */
 (async()=>{
