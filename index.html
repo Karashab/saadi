@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 </head>
 <body>
-<title>داشبورد سعدی</title>
+<title>داشبورد پروژه نور</title>
 <script>try{const t=localStorage.getItem('sadi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
@@ -216,7 +216,7 @@ body.ro .pctbtn,body.ro .ttl{cursor:default}
 <div dir="rtl" lang="fa">
 <div class="band"><div class="in"><header class="top">
     <div class="brand">
-      <h1 id="pTitle">داشبورد سعدی</h1>
+      <h1 id="pTitle">داشبورد پروژه نور</h1>
       <div class="sub" id="pSub">برنامه زمان‌بندی احداث و راه‌اندازی مرکز داده سعدی</div>
       <div class="code" id="pCode"></div>
     </div>
@@ -390,7 +390,7 @@ function render(){
   renderKPI();renderPhases();renderTimeline();renderAlerts();renderFilters();renderBoard()}
 function renderHeader(){
   const m=meta||{};
-  $('#pTitle').textContent=m.name?('داشبورد '+m.name.replace(/^مرکز داده /,'')):'داشبورد سعدی';
+  $('#pTitle').textContent='داشبورد پروژه نور';
   $('#pSub').textContent=m.title||'';$('#pCode').textContent=m.code||'';
   const t=dnJ(T).split('/');$('#todayLbl').textContent='امروز '+fa(+t[2])+' '+MONTHS[+t[1]-1]+' '+fa(t[0])}
 const ICO={prog:'<path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/>',time:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',done:'<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',late:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>'};
