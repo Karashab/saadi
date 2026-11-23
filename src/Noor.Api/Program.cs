@@ -13,6 +13,7 @@ builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<NoorDb>();
 builder.Services.AddSingleton<DeadlineJob>();
+builder.Services.AddSingleton<IFileStore, LocalFileStore>();
 if (config.GetValue("Worker:Enabled", true)) builder.Services.AddHostedService<DeadlineWorker>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

@@ -45,6 +45,7 @@ public static class Endpoints
             }, ct));
 
         api.MapNoorAdmin();
+        api.MapNoorDocuments();
         api.MapPost("/projects/{projectId:guid}/tasks", CreateTask);
         api.MapPatch("/tasks/{taskId:guid}", UpdateTask);
         api.MapDelete("/tasks/{taskId:guid}", DeleteTask);

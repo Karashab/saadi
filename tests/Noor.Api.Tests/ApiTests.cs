@@ -55,6 +55,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>
         builder.UseSetting("ConnectionStrings:Noor", Environment.GetEnvironmentVariable("NOOR_TEST_API_DB") ?? Cs);
         builder.UseSetting("Auth:TestSigningKey", Key);
         builder.UseSetting("Worker:Enabled", "false");
+        builder.UseSetting("Storage:Root", Path.Combine(Path.GetTempPath(), "noor-test-files", Guid.NewGuid().ToString("N")));
     }
 
     public HttpClient As(Guid user)
