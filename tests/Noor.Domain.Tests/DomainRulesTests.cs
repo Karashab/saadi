@@ -48,6 +48,10 @@ public class AccessPolicyTests
     }
 
     [Fact]
+    public void Company_role_without_company_cannot_open_unassigned_task() =>
+        Assert.False(AccessPolicy.Can(new Membership(Guid.NewGuid(), Project, null, MemberRole.CompanyAdmin), Permission.ViewTask, new(Project, null)));
+
+    [Fact]
     public void No_membership_grants_nothing() =>
         Assert.False(AccessPolicy.Can(null, Permission.ViewTask, new(Project, OrgA)));
 }

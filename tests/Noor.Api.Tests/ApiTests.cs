@@ -39,6 +39,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>
             INSERT INTO project_members VALUES
               ('{Project}','{ExecA}','{OrgA}','executor'),('{Project}','{ExecB}','{OrgB}','executor'),
               ('{Project}','{Pm}','{OrgA}','project_manager'),('{Project}','{Viewer}','{OrgA}','viewer');
+            INSERT INTO project_organizations VALUES ('{Project}','{OrgA}'),('{Project}','{OrgB}');
             INSERT INTO tasks(id,project_id,organization_id,legacy_id,sort_order,wbs,name,percent_complete,finish_date,assignee_user_id) VALUES
               ('{TaskA}','{Project}','{OrgA}','a',0,'1','{ExactTitle}',0,NULL,NULL),
               ('{TaskB}','{Project}','{OrgB}','b',1,'2','task b',0,NULL,NULL),
@@ -51,7 +52,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
-        builder.UseSetting("ConnectionStrings:Noor", Cs);
+        builder.UseSetting("ConnectionStrings:Noor", Environment.GetEnvironmentVariable("NOOR_TEST_API_DB") ?? Cs);
         builder.UseSetting("Auth:TestSigningKey", Key);
         builder.UseSetting("Worker:Enabled", "false");
     }

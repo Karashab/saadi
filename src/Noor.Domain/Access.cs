@@ -9,7 +9,7 @@ public enum Permission
     ViewReports, ManageMembers, ViewAuditLog
 }
 
-public sealed record Membership(Guid UserId, Guid ProjectId, Guid OrganizationId, MemberRole Role);
+public sealed record Membership(Guid UserId, Guid ProjectId, Guid? OrganizationId, MemberRole Role);
 
 /// <summary>A resource in a project; a null organization means it has no owning company yet.</summary>
 public sealed record ResourceScope(Guid ProjectId, Guid? OrganizationId);
@@ -42,6 +42,7 @@ public static class AccessPolicy
     {
         if (member is null || member.ProjectId != resource.ProjectId) return false;
         if (!Matrix[member.Role].Contains(permission)) return false;
-        return HasProjectWideScope(member.Role) || resource.OrganizationId == member.OrganizationId;
+        return HasProjectWideScope(member.Role)
+            || (member.OrganizationId is { } company && resource.OrganizationId == company);
     }
 }

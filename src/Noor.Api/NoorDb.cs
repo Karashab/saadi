@@ -40,7 +40,7 @@ public sealed class RequestDb(NpgsqlConnection connection, NpgsqlTransaction tra
             ("p", projectId), ("u", UserId));
         await using var reader = await command.ExecuteReaderAsync(ct);
         if (!await reader.ReadAsync(ct)) return null;
-        return new Membership(UserId, projectId, reader.GetGuid(0), ParseRole(reader.GetString(1)));
+        return new Membership(UserId, projectId, reader.IsDBNull(0) ? null : reader.GetGuid(0), ParseRole(reader.GetString(1)));
     }
 
     public Task Audit(Guid projectId, string entity, string id, string action, string? before, string? after,
@@ -91,6 +91,11 @@ public sealed class NoorDb(NpgsqlDataSource source)
         {
             await transaction.RollbackAsync(ct);
             return Error(failure.Status, failure.Message);
+        }
+        catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.InsufficientPrivilege)
+        {
+            await transaction.RollbackAsync(ct);
+            return Error(403, "دسترسی لازم را ندارید.");
         }
     }
 
