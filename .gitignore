@@ -1,0 +1,8 @@
+migration/output/
+*.env
+.env*
+secrets*.json
+node_modules/
+bin/
+obj/
+dist/
