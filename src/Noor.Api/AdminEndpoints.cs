@@ -17,6 +17,13 @@ public static class AdminEndpoints
     {
         var project = api.MapGroup("/projects/{projectId:guid}");
 
+        project.MapGet("/me", (Guid projectId, ClaimsPrincipal user, NoorDb db, CancellationToken ct) => db.Run(user, async d =>
+            Json(await d.Scalar(
+                """
+                SELECT jsonb_build_object('userId',u.id,'name',u.display_name,'role',m.role,'organizationId',m.organization_id)::text
+                FROM project_members m JOIN users u ON u.id=m.user_id WHERE m.project_id=@p AND m.user_id=@u
+                """, ct, ("p", projectId), ("u", d.UserId)) ?? throw new ApiFailure(404, "پروژه پیدا نشد.")), ct));
+
         project.MapGet("/organizations", (Guid projectId, ClaimsPrincipal user, NoorDb db, CancellationToken ct) => db.Run(user, async d =>
         {
             _ = await d.Member(projectId, ct) ?? throw new ApiFailure(404, "پروژه پیدا نشد.");

@@ -1,0 +1,28 @@
+{
+  "name": "noor-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource-variable/vazirmatn": "^5.3.0",
+    "@tanstack/react-query": "^5.108.3",
+    "@tanstack/react-virtual": "^3.14.28",
+    "jalaali-js": "^2.0.1",
+    "lucide-react": "^1.78.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/jalaali-js": "^1.2.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  }
+}
