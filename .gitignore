@@ -9,3 +9,4 @@ dist/
 deploy/.env
 deploy/backups/
 deploy/certs/
+!deploy/.env.example
