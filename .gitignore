@@ -6,3 +6,6 @@ node_modules/
 bin/
 obj/
 dist/
+deploy/.env
+deploy/backups/
+deploy/certs/

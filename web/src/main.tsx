@@ -17,10 +17,12 @@ const client = new QueryClient({
   },
 });
 
-createRoot(document.getElementById('root')!).render(
+import { initAuth } from './auth';
+
+initAuth().catch(() => 'failed' as const).then(state => createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={client}>
-      <ToastProvider><App /></ToastProvider>
+      <ToastProvider><App authFailed={state === 'failed'} /></ToastProvider>
     </QueryClientProvider>
   </StrictMode>,
-);
+)).then(() => void 0, () => void 0);

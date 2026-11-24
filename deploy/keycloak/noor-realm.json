@@ -1,0 +1,49 @@
+{
+  "realm": "noor",
+  "enabled": true,
+  "displayName": "پروژه نور",
+  "rememberMe": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "bruteForceProtected": true,
+  "failureFactor": 8,
+  "passwordPolicy": "length(10) and notUsername",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fa", "en"],
+  "defaultLocale": "fa",
+  "ssoSessionIdleTimeout": 28800,
+  "ssoSessionMaxLifespan": 36000,
+  "ssoSessionIdleTimeoutRememberMe": 2592000,
+  "ssoSessionMaxLifespanRememberMe": 2592000,
+  "accessTokenLifespan": 300,
+  "clients": [
+    {
+      "clientId": "noor-web",
+      "name": "داشبورد پروژه نور",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "redirectUris": ["${NOOR_PUBLIC_URL}/*"],
+      "webOrigins": ["${NOOR_PUBLIC_URL}"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${NOOR_PUBLIC_URL}/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "noor-api audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "noor-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

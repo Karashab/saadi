@@ -76,6 +76,9 @@ public sealed class NoorDb(NpgsqlDataSource source)
         await db.Execute("SET LOCAL ROLE noor_app", ct);
         await db.Execute("SELECT set_config('app.user_id', '', true)", ct);
 
+        if (await db.Scalar("SELECT id FROM users WHERE identity_subject=@s", ct, ("s", subject)) is null)
+            await db.Scalar("SELECT ensure_user(@s, @n, @u, @e)", ct, ("s", subject), ("n", principal.FindFirstValue("name")),
+                ("u", principal.FindFirstValue("preferred_username")), ("e", principal.FindFirstValue("email")));
         if (await db.Scalar("SELECT id FROM users WHERE identity_subject=@s AND is_active", ct, ("s", subject)) is not Guid userId)
             return Error(403, "این کاربر در سامانه فعال نیست.");
         db.UserId = userId;

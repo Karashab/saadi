@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, Plus, ShieldCheck, Trash2, Users } from 'lucide-react';
-import { api, type Me, type Member, type Organization, type Role } from '../api';
+import { api, type DirectoryUser, type Me, type Member, type Organization, type Role } from '../api';
 import { ROLE_LABEL, isManager, toFa } from '../model';
 import { Empty, Skeleton, useToast } from '../ui';
 
@@ -11,6 +11,8 @@ export default function Access({ projectId, me }: { projectId: string; me: Me })
   const client = useQueryClient();
   const toast = useToast();
   const [name, setName] = useState('');
+  const [search, setSearch] = useState('');
+  const directory = useQuery({ queryKey: ['directory', projectId, search], queryFn: () => api<DirectoryUser[]>(`/projects/${projectId}/user-directory?q=${encodeURIComponent(search)}`), enabled: search.trim().length >= 2 });
   const organizations = useQuery({ queryKey: ['organizations', projectId], queryFn: () => api<Organization[]>(`/projects/${projectId}/organizations`) });
   const members = useQuery({ queryKey: ['members', projectId], queryFn: () => api<Member[]>(`/projects/${projectId}/members`) });
   const fail = (e: Error) => { toast(e.message, true); client.invalidateQueries({ queryKey: ['members', projectId] }); };
@@ -55,6 +57,19 @@ export default function Access({ projectId, me }: { projectId: string; me: Me })
       </section>
       <section className="card">
         <header className="card-head"><div><h2>کاربران و نقش‌ها</h2><p>{toFa(members.data?.length ?? 0)} کاربر در این پروژه</p></div><ShieldCheck size={19} className="muted" /></header>
+        <div className="add-member">
+          <div className="search"><Plus size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="افزودن کاربر: نام، نام کاربری یا ایمیل…" aria-label="جستجوی کاربر" /></div>
+          {search.trim().length >= 2 && (
+            <div className="directory">
+              {directory.data?.filter(u => !members.data?.some(m => m.userId === u.id)).map(u => (
+                <button key={u.id} onClick={() => { change({ userId: u.id, name: u.name, role: 'viewer', organizationId: null }, 'viewer', null); setSearch(''); }}>
+                  <span className="avatar">{u.name.slice(0, 1)}</span><span><strong>{u.name}</strong><small>{u.username ?? u.email ?? ''}</small></span><em>افزودن به‌عنوان ناظر</em>
+                </button>
+              ))}
+              {directory.data && directory.data.filter(u => !members.data?.some(m => m.userId === u.id)).length === 0 && <p className="muted">کاربری پیدا نشد. هر کاربر بعد از اولین ورود به سامانه اینجا دیده می‌شود.</p>}
+            </div>
+          )}
+        </div>
         {members.data?.length === 0 ? <Empty icon={<Users size={22} />} title="کاربری نیست" /> : (
           <div className="members">
             {members.data?.map(m => {

@@ -1,0 +1,113 @@
+name: noor
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: noor
+      POSTGRES_USER: noor_owner
+      POSTGRES_PASSWORD: ${DB_OWNER_PASSWORD:?set DB_OWNER_PASSWORD in .env}
+    volumes: [db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noor_owner -d noor"]
+      interval: 10s
+      retries: 10
+
+  migrate:
+    image: postgres:17
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      PGHOST: db
+      PGDATABASE: noor
+      PGUSER: noor_owner
+      PGPASSWORD: ${DB_OWNER_PASSWORD}
+      API_DB_PASSWORD: ${API_DB_PASSWORD:?set API_DB_PASSWORD in .env}
+    volumes: ["../db:/migrations:ro", "./migrate.sh:/migrate.sh:ro"]
+    entrypoint: ["bash", "/migrate.sh"]
+    restart: "no"
+
+  keycloak-db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?set KEYCLOAK_DB_PASSWORD in .env}
+    volumes: [keycloak-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    restart: unless-stopped
+    command: ["start", "--import-realm"]
+    depends_on: { keycloak-db: { condition: service_healthy } }
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME: https://${NOOR_HOST:?set NOOR_HOST in .env}/auth
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?set KEYCLOAK_ADMIN_PASSWORD in .env}
+      NOOR_PUBLIC_URL: https://${NOOR_HOST}
+    volumes: ["./keycloak/noor-realm.json:/opt/keycloak/data/import/noor-realm.json:ro"]
+
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    volumes: [clamav-db:/var/lib/clamav]
+
+  app:
+    build: { context: .., dockerfile: Dockerfile }
+    restart: unless-stopped
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      keycloak: { condition: service_started }
+    environment:
+      ConnectionStrings__Noor: Host=db;Database=noor;Username=noor_api;Password=${API_DB_PASSWORD}
+      Auth__Authority: https://${NOOR_HOST}/auth/realms/noor
+      Auth__MetadataAddress: http://keycloak:8080/auth/realms/noor/.well-known/openid-configuration
+      Auth__Audience: noor-api
+      Auth__ClientId: noor-web
+      Scan__ClamAvHost: clamav
+      Scan__Required: "true"
+      Storage__MaxFileBytes: "524288000"
+    volumes: [files:/data/files]
+
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app, keycloak]
+    ports: ["80:80", "443:443"]
+    environment:
+      NOOR_HOST: ${NOOR_HOST}
+      TLS_MODE: ${TLS_MODE:-internal}
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./certs:/certs:ro", caddy-data:/data]
+
+  backup:
+    image: postgres:17
+    restart: unless-stopped
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      PGHOST: db
+      PGDATABASE: noor
+      PGUSER: noor_owner
+      PGPASSWORD: ${DB_OWNER_PASSWORD}
+      KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes: ["./backup.sh:/backup.sh:ro", "${BACKUP_DIR:-./backups}:/backups", "files:/data/files:ro"]
+    entrypoint: ["bash", "/backup.sh"]
+
+volumes:
+  db-data:
+  keycloak-db:
+  clamav-db:
+  files:
+  caddy-data:

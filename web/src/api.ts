@@ -25,9 +25,9 @@ export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
-export const getToken = () => {
-  try { return sessionStorage.getItem('noor-token'); } catch { return null; }
-};
+import { getToken } from './auth';
+export { getToken };
+export interface DirectoryUser { id: string; name: string; username: string | null; email: string | null }
 
 const headers = (): Record<string, string> => {
   const token = getToken();

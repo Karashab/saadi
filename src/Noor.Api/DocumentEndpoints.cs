@@ -136,9 +136,9 @@ public static class DocumentEndpoints
         }, ct));
     }
 
-    private static async Task<IResult> UploadDocument(Guid projectId, HttpContext http, NoorDb db, IFileStore store, IConfiguration config, CancellationToken ct)
+    private static async Task<IResult> UploadDocument(Guid projectId, HttpContext http, NoorDb db, IFileStore store, IVirusScanner scanner, IConfiguration config, CancellationToken ct)
     {
-        var (form, file, failure) = await ReadUpload(http, config, ct);
+        var (form, file, failure) = await ReadUpload(http, config, scanner, ct);
         if (failure is not null) return failure;
         return await WithFile(store, file!, ct, save => db.Run(http.User, async d =>
         {
@@ -177,9 +177,9 @@ public static class DocumentEndpoints
         }, ct));
     }
 
-    private static async Task<IResult> UploadVersion(Guid documentId, HttpContext http, NoorDb db, IFileStore store, IConfiguration config, CancellationToken ct)
+    private static async Task<IResult> UploadVersion(Guid documentId, HttpContext http, NoorDb db, IFileStore store, IVirusScanner scanner, IConfiguration config, CancellationToken ct)
     {
-        var (_, file, failure) = await ReadUpload(http, config, ct);
+        var (_, file, failure) = await ReadUpload(http, config, scanner, ct);
         if (failure is not null) return failure;
         return await WithFile(store, file!, ct, save => db.Run(http.User, async d =>
         {
@@ -252,7 +252,7 @@ public static class DocumentEndpoints
         return result;
     }
 
-    private static async Task<(IFormCollection? Form, IFormFile? File, IResult? Failure)> ReadUpload(HttpContext http, IConfiguration config, CancellationToken ct)
+    private static async Task<(IFormCollection? Form, IFormFile? File, IResult? Failure)> ReadUpload(HttpContext http, IConfiguration config, IVirusScanner scanner, CancellationToken ct)
     {
         var limit = config.GetValue<long>("Storage:MaxFileBytes", 500L * 1024 * 1024);
         var size = http.Features.Get<IHttpMaxRequestBodySizeFeature>();
@@ -272,6 +272,13 @@ public static class DocumentEndpoints
             var read = await input.ReadAtLeastAsync(head, head.Length, false, ct);
             if (read < head.Length || !head.SequenceEqual(signature))
                 return (form, null, NoorDb.Error(415, "محتوای فایل با پسوند آن مطابقت ندارد."));
+        }
+        await using (var input = file.OpenReadStream())
+        {
+            var verdict = await scanner.ScanAsync(input, ct);
+            if (verdict == ScanVerdict.Infected) return (form, null, NoorDb.Error(422, "این فایل آلوده تشخیص داده شد و پذیرفته نشد."));
+            if (verdict == ScanVerdict.Unavailable && config.GetValue("Scan:Required", false))
+                return (form, null, NoorDb.Error(503, "بررسی امنیتی فایل در دسترس نیست. کمی بعد دوباره تلاش کنید."));
         }
         return (form, file, null);
     }

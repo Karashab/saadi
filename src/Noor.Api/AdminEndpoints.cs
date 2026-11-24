@@ -24,6 +24,22 @@ public static class AdminEndpoints
                 FROM project_members m JOIN users u ON u.id=m.user_id WHERE m.project_id=@p AND m.user_id=@u
                 """, ct, ("p", projectId), ("u", d.UserId)) ?? throw new ApiFailure(404, "پروژه پیدا نشد.")), ct));
 
+        // Directory search for managers adding people; returns no access information.
+        project.MapGet("/user-directory", (Guid projectId, string? q, ClaimsPrincipal user, NoorDb db, CancellationToken ct) => db.Run(user, async d =>
+        {
+            var member = await d.Member(projectId, ct) ?? throw new ApiFailure(404, "پروژه پیدا نشد.");
+            if (!AccessPolicy.Can(member, Permission.ManageMembers, new(projectId, member.OrganizationId)))
+                throw new ApiFailure(403, "دسترسی لازم را ندارید.");
+            var term = q?.Trim();
+            if (string.IsNullOrEmpty(term) || term.Length < 2) return Json("[]");
+            return Json(await d.Scalar(
+                """
+                SELECT coalesce(jsonb_agg(jsonb_build_object('id',u.id,'name',u.display_name,'username',u.username,'email',u.email) ORDER BY u.display_name),'[]')::text
+                FROM (SELECT * FROM users WHERE is_active AND (position(lower(@q) IN lower(display_name))>0 OR position(lower(@q) IN lower(coalesce(username,'')))>0
+                      OR position(lower(@q) IN lower(coalesce(email,'')))>0) ORDER BY display_name LIMIT 20) u
+                """, ct, ("q", term)));
+        }, ct));
+
         project.MapGet("/organizations", (Guid projectId, ClaimsPrincipal user, NoorDb db, CancellationToken ct) => db.Run(user, async d =>
         {
             _ = await d.Member(projectId, ct) ?? throw new ApiFailure(404, "پروژه پیدا نشد.");

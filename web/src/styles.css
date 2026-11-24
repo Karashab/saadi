@@ -350,6 +350,17 @@ input[type='range'] { width: 100%; accent-color: var(--accent); }
 .members { display: flex; flex-direction: column; }
 .member { display: grid; grid-template-columns: 34px minmax(120px, 1fr) 150px 170px 38px; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
 .member:first-child { border-top: 0; }
+.btn.wide { min-width: 200px; margin-top: 8px; }
+.add-member { position: relative; margin-bottom: 12px; }
+.add-member .search { flex: 1 1 auto; max-width: none; }
+.directory { position: absolute; inset-inline: 0; top: 44px; z-index: 5; display: flex; flex-direction: column; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-lg); }
+.directory button { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border: 0; border-radius: 9px; background: none; text-align: start; }
+.directory button:hover { background: var(--hover); }
+.directory button > span:nth-child(2) { flex: 1; min-width: 0; }
+.directory strong, .directory small { display: block; }
+.directory small { color: var(--ink-3); font-size: 11.5px; }
+.directory em { color: var(--accent-ink); font-size: 12px; font-style: normal; font-weight: 600; }
+.directory p { padding: 8px; font-size: 12.5px; }
 .member small { color: var(--ink-3); font-weight: 400; }
 
 @media (max-width: 1180px) {

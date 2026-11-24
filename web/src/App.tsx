@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, BellOff, ChartColumn, FolderOpen, LayoutDashboard, ListTree, LogOut, Moon, ShieldCheck, Sun } from 'lucide-react';
+import { signIn, signOut } from './auth';
 import { api, getToken, type Ancestor, type Me, type Notification, type Project, type Task } from './api';
 import { ROLE_LABEL, buildTree, isManager, longDate, todayIso, toFa } from './model';
 import { Empty, Popover, Skeleton } from './ui';
@@ -71,7 +72,7 @@ function Notifications({ onOpenTask }: { onOpenTask: (id: string) => void }) {
   );
 }
 
-export default function App() {
+export default function App({ authFailed }: { authFailed?: boolean }) {
   const [page, setPage] = useState<Page>(pageFromHash);
   const [focusTask, setFocusTask] = useState<string | null>(null);
   useEffect(() => {
@@ -85,16 +86,16 @@ export default function App() {
   const project = projects.data?.[0];
   const me = useQuery({ queryKey: ['me', project?.id], queryFn: () => api<Me>(`/projects/${project!.id}/me`), enabled: !!project });
 
+  if (authFailed) return <SignIn message="اتصال به سامانه ورود برقرار نشد. صفحه را دوباره باز کنید." />;
   if (!signedIn) return <SignIn />;
   if (projects.error) return <SignIn message={(projects.error as Error).message} />;
   if (projects.isLoading || (project && me.isLoading)) return <div className="boot"><div className="logo">ن</div><Skeleton rows={3} /></div>;
-  if (!project || !me.data) return <div className="boot"><Empty icon={<ShieldCheck size={24} />} title="هنوز به پروژه‌ای دسترسی ندارید" text="از مدیر سیستم بخواهید شما را به پروژه اضافه کند." /></div>;
+  if (!project || !me.data) return <div className="boot"><Empty icon={<ShieldCheck size={24} />} title="هنوز به پروژه‌ای دسترسی ندارید" text="ورود شما ثبت شد. از مدیر پروژه بخواهید شما را به پروژه اضافه کند." /><button className="btn" onClick={() => signOut()}>خروج</button></div>;
 
   const nav = NAV.filter(n => !n.manager || isManager(me.data.role));
   const current = nav.find(n => n.id === page) ?? nav[0];
   const go = (id: Page) => { location.hash = id; };
   const openTask = (id: string) => { setFocusTask(id); go('tasks'); };
-  const signOut = () => { sessionStorage.removeItem('noor-token'); location.reload(); };
 
   return (
     <div className="shell">
@@ -110,7 +111,7 @@ export default function App() {
         <div className="me">
           <div className="avatar">{me.data.name.slice(0, 1)}</div>
           <div><strong>{me.data.name}</strong><small>{ROLE_LABEL[me.data.role]}</small></div>
-          <button className="icon-btn sm" onClick={signOut} title="خروج" aria-label="خروج"><LogOut size={16} /></button>
+          <button className="icon-btn sm" onClick={() => signOut()} title="خروج" aria-label="خروج"><LogOut size={16} /></button>
         </div>
       </aside>
       <div className="main">
@@ -136,7 +137,8 @@ function SignIn({ message }: { message?: string }) {
       <section>
         <div className="logo lg">ن</div>
         <h1>داشبورد پروژه نور</h1>
-        <p>{message ?? 'ورود سازمانی پس از اتصال سامانه احراز هویت فعال می‌شود.'}</p>
+        <p>{message ?? 'برای دیدن داشبورد با حساب سازمانی خود وارد شوید.'}</p>
+        {!message && <button className="btn primary wide" onClick={() => signIn()}>ورود به سامانه</button>}
       </section>
     </div>
   );
